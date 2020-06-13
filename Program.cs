@@ -82,7 +82,9 @@ namespace OrderBrushing
                 for (int d = 0; d < date_times.Count; d++)
                 {
                     if (userlist[i][d].Count != 0 && ((c_time_numorders_pershop_perspan[i][d] / userlist[i][d].Count) >= 3))
-                        r_cnt++;
+                    {
+                        Console.WriteLine("ShopID (" + shop_ids[i] + ") - CT(" + (c_time_numorders_pershop_perspan[i][d] / userlist[i][d].Count));
+                    }
                 }
             }
 
