@@ -8,12 +8,16 @@ namespace OrderBrushing
     {
         static void Main(string[] args)
         {
+            string str = "";
             List<Record> records = new List<Record>();
             List<long> shop_ids = new List<long>();
             List<long> user_ids = new List<long>();
             DateTime startDate = DateTime.Now, endDate = new DateTime(2009, 01, 01);
             List<DateTime> date_times = new List<DateTime>();
-            using (var reader = new StreamReader(@"D:\jexis I\Profession\VSU\Operations\Shopee Code League\June 13 - Order Brushing\order_brushing_p1.csv"))
+
+            #region Data Retrieval
+            ///Change this directory to the source CSV (shop-event_time ordered)
+            using (var reader = new StreamReader(@"D:\jexis I\Profession\VSU\Operations\Shopee Code League\June 13 - Order Brushing\order_brush_ordered.csv"))
             {
                 reader.ReadLine();
                 while (!reader.EndOfStream)
@@ -42,14 +46,9 @@ namespace OrderBrushing
                     r = null;
                 }
             }
+            #endregion
 
-            Console.WriteLine("Number of shops: " + shop_ids.Count);
-            Console.WriteLine("Number of users: " + user_ids.Count);
-            Console.WriteLine("Start: " + startDate);
-            Console.WriteLine("End: " + endDate);
-            int[] dec_27_2019_usercnt = new int[shop_ids.Count];
-
-            ///Analytics code
+            #region Data Processing and Grouping
             date_times.Sort();
             long[][] c_time_numorders_pershop_perspan = new long[shop_ids.Count][];
             List<long>[][] userlist = new List<long>[shop_ids.Count][];
@@ -60,7 +59,7 @@ namespace OrderBrushing
                 for (int d = 0; d < date_times.Count; d++)
                     userlist[i][d] = new List<long>();
             }
-            Console.WriteLine("Number of spans: " + date_times.Count);
+
             for (int d = 0; d < date_times.Count; d++)
             {
                 foreach (Record r in records)
@@ -72,13 +71,15 @@ namespace OrderBrushing
                         if (!userlist[sid][d].Contains(r.user_id))
                             userlist[sid][d].Add(r.user_id);
                     }
+                    else
+                        break;
                 }
             }
+            #endregion
 
-            int r_cnt = 0;
-
+            #region Data Summary
             List<long>[] user_ids_per_shop = new List<long>[shop_ids.Count];
-            Console.WriteLine("ShopID\tUserIDs");
+            str += "shopid,userid\n";
             for (int i = 0; i < shop_ids.Count; i++)
             {
                 user_ids_per_shop[i] = new List<long>();
@@ -93,22 +94,28 @@ namespace OrderBrushing
                         }
                     }
                 }
+                str += shop_ids[i] + ",";
                 if (user_ids_per_shop[i].Count > 0)
                 {
-                    Console.Write(shop_ids[i] + "\t");
                     for (int uid = 0; uid < user_ids_per_shop[i].Count; uid++)
                     {
-                        Console.Write(user_ids_per_shop[i][uid]);
+                        str += user_ids_per_shop[i][uid] + "";
                         if (uid != user_ids_per_shop[i].Count - 1)
-                            Console.Write("&");
+                            str += "&";
                     }
-                    Console.WriteLine();
                 }
+                else
+                    str += "0";
+                str += "\n";
             }
-                
+            #endregion
 
-            Console.WriteLine("Row count: " + r_cnt);
-            Console.WriteLine("Finished...");
+            ///Change this directory to the destination CSV
+            string dest = @"D:\jexis I\Profession\VSU\Operations\Shopee Code League\June 13 - Order Brushing\output.csv";
+            StreamWriter sw = new StreamWriter(dest);
+            sw.Write(str);
+            sw.Close();
+            Console.WriteLine("Finished! Your output is written at " + dest);
             Console.ReadKey();
         }
     }
