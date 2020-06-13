@@ -77,16 +77,35 @@ namespace OrderBrushing
 
             int r_cnt = 0;
 
+            List<long>[] user_ids_per_shop = new List<long>[shop_ids.Count];
+            Console.WriteLine("ShopID\tUserIDs");
             for (int i = 0; i < shop_ids.Count; i++)
             {
+                user_ids_per_shop[i] = new List<long>();
                 for (int d = 0; d < date_times.Count; d++)
                 {
                     if (userlist[i][d].Count != 0 && ((c_time_numorders_pershop_perspan[i][d] / userlist[i][d].Count) >= 3))
                     {
-                        Console.WriteLine("ShopID (" + shop_ids[i] + ") - CT(" + (c_time_numorders_pershop_perspan[i][d] / userlist[i][d].Count));
+                        for (int uid = 0; uid < userlist[i][d].Count; uid++)
+                        {
+                            if (!user_ids_per_shop[i].Contains(userlist[i][d][uid]))
+                                user_ids_per_shop[i].Add(userlist[i][d][uid]);
+                        }
                     }
                 }
+                if (user_ids_per_shop[i].Count > 0)
+                {
+                    Console.Write(shop_ids[i] + "\t");
+                    for (int uid = 0; uid < user_ids_per_shop[i].Count; uid++)
+                    {
+                        Console.Write(user_ids_per_shop[i][uid]);
+                        if (uid != user_ids_per_shop[i].Count - 1)
+                            Console.Write("&");
+                    }
+                    Console.WriteLine();
+                }
             }
+                
 
             Console.WriteLine("Row count: " + r_cnt);
             Console.WriteLine("Finished...");
